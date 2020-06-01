@@ -1,0 +1,10 @@
+all:
+  children:
+    target:
+      hosts:
+        a:
+          ansible_host: localhost
+          ansible_user: vagrant
+          ansible_port: 2022
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
