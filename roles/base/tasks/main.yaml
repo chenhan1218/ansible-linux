@@ -1,0 +1,22 @@
+- name: Install packages
+  block:
+    - name: update
+      apt:
+        update_cache: yes
+    - name: install base packages
+      apt:
+        name: "{{ item.name }}"
+        state: '{{ item.state | default("present") }}'
+        purge: yes
+
+      with_items:
+        - name: htop
+        - name: tmux
+        - name: vim
+        - name: silversearcher-ag
+        - name: tig
+        - name: tree
+        - name: keychain
+
+  become: yes
+  become_user: root

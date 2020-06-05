@@ -1,0 +1,6 @@
+---
+- hosts: "{{ run_hosts }}"
+  gather_facts: false
+  roles:
+    - personalized
+    - base

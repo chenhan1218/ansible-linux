@@ -1,0 +1,41 @@
+- name: Install packages
+  block:
+    - name: update
+      apt:
+        update_cache: yes
+
+    - name: install build tools packages
+      apt:
+        name: "{{ item.name }}"
+        state: '{{ item.state | default("present") }}'
+        purge: yes
+
+      with_items:
+        - name: build-essential
+        - name: devscripts
+
+    - name: install desktop packages
+      apt:
+        name: "{{ item.name }}"
+        state: '{{ item.state | default("present") }}'
+
+      with_items:
+        - name: gdebi
+        - name: fasd
+        - name: meld
+
+    - name: install language support for zh
+      shell: apt install -y $(check-language-support -l zh-hant) | true
+      register: language_support
+
+    - name: install Chinese language packages
+      apt:
+        name: "{{ item.name }}"
+        state: '{{ item.state | default("present") }}'
+        purge: yes
+
+      with_items:
+        - name: ibus-chewing
+
+  become: yes
+  become_user: root
