@@ -1,0 +1,37 @@
+# usage example:
+# ansible-playbook -vv kubeflow.yaml --skip-tags "clean"
+# ansible-playbook -vv kubeflow.yaml --tags "clean"
+- hosts: localhost
+  tasks:
+    - debug:
+        var: KF_DIR
+    - name: start minikube
+      shell: |
+        minikube start --vm-driver virtualbox --cpus 4 --memory 8096 --disk-size=120g --kubernetes-version=v1.14.0  -p {{KUBEFLOW_PROFILE}}
+    - name: minikube status
+      shell: minikube status -p {{KUBEFLOW_PROFILE}}
+      register: result
+    - debug:
+        var: result
+        verbosity: 2
+    - name: setup kubeflow
+      shell: |
+        cd {{KF_DIR}}
+        kfctl apply -V -f {{CONFIG_URI}}
+    - name: stop minikube
+      shell: minikube stop -p {{KUBEFLOW_PROFILE}}
+      tags: clean
+    - name: delete minikube profile
+      shell: minikube delete -p {{KUBEFLOW_PROFILE}}
+      tags: clean
+    - name: delete kf folder
+      shell: |
+        rm -rf {{KF_DIR}}/*
+        rm -rf {{KF_DIR}}/.cache
+      tags: clean
+  vars:
+    KF_NAME: "kf1.0"
+    # BASE_DIR: "/ext/git"
+    KF_DIR: "{{BASE_DIR}}/{{KF_NAME}}"
+    CONFIG_URI: "https://raw.githubusercontent.com/kubeflow/manifests/v1.0-branch/kfdef/kfctl_k8s_istio.v1.0.2.yaml"
+    KUBEFLOW_PROFILE: "kubeflow-v1.0"
