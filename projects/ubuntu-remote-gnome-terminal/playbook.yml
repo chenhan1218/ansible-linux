@@ -1,0 +1,11 @@
+# trying fix locale issue while starting gnome-terminal
+# not finish yet
+- hosts: all
+  tasks:
+    - name: x11-apps
+      shell: |
+        sudo sed -i 's/archive.ubuntu.com/free.nchc.org.tw/g' /etc/apt/sources.list
+        sudo localectl set-locale LANG=en_US.UTF-8
+        echo "LANG=en_US.UTF-8" | sudo tee /etc/default/locale
+        sudo apt update
+        sudo apt install -y x11-apps dbus-x11 gnome-terminal
