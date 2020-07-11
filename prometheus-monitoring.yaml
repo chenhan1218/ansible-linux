@@ -1,0 +1,26 @@
+# refer to https://github.com/coreos/kube-prometheus/tree/release-0.5
+- hosts: localhost
+  tasks:
+    - name: start minikube
+      shell: |
+        minikube start --vm-driver virtualbox -p {{KUBEFLOW_PROFILE}} --disk-size=120g --kubernetes-version=v1.18.1 --memory=6g --bootstrapper=kubeadm --extra-config=kubelet.authentication-token-webhook=true --extra-config=kubelet.authorization-mode=Webhook --extra-config=scheduler.address=0.0.0.0 --extra-config=controller-manager.address=0.0.0.0
+    - name: minikube status
+      shell: minikube status -p {{KUBEFLOW_PROFILE}}
+      register: result
+    - debug:
+        var: result
+        verbosity: 2
+    - name: minikube addons list
+      shell: minikube addons list -p {{KUBEFLOW_PROFILE}}
+      register: result
+    - debug:
+        var: result
+        verbosity: 2
+    - name: stop minikube
+      shell: minikube stop -p {{KUBEFLOW_PROFILE}}
+      tags: clean
+    - name: delete minikube profile
+      shell: minikube delete -p {{KUBEFLOW_PROFILE}}
+      tags: clean
+  vars:
+    KUBEFLOW_PROFILE: "my"
