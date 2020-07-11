@@ -1,0 +1,97 @@
+# try running smokeping on kubernetes with persistent volume mount from hosthome in minikube
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: smokeping-config
+spec:
+  storageClassName: smokeping-config
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 200Mi
+  hostPath:
+    path: /hosthome/user/smokeping/config
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: smokeping-data
+spec:
+  storageClassName: smokeping-data
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 200Mi
+  hostPath:
+    path: /hosthome/user/smokeping/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: smokeping-storage-config-claim
+  labels:
+    app: smokeping
+spec:
+  storageClassName: smokeping-config
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: smokeping-storage-data-claim
+  labels:
+    app: smokeping
+spec:
+  storageClassName: smokeping-data
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: smokeping
+  labels:
+    app: smokeping
+spec:
+  selector:
+    matchLabels:
+      app: smokeping
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: smokeping
+    spec:
+      containers:
+        - image: linuxserver/smokeping
+          name: smokeping
+          env:
+            - name: PUID
+              value: "1000"
+            - name: GUID
+              value: "1000"
+            - name: TZ
+              value: "Asia/Taipei"
+          ports:
+            - containerPort: 80
+              name: smokeping
+          volumeMounts:
+            - name: smokeping-storage-config
+              mountPath: /config
+            - name: smokeping-storage-data
+              mountPath: /data
+      volumes:
+        - name: smokeping-storage-config
+          persistentVolumeClaim:
+            claimName: smokeping-storage-config-claim
+        - name: smokeping-storage-data
+          persistentVolumeClaim:
+            claimName: smokeping-storage-data-claim
