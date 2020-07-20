@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+    - name: scalene
+      shell: |
+        sudo sed -i 's/archive.ubuntu.com/free.nchc.org.tw/g' /etc/apt/sources.list
+        sudo apt update
+        sudo apt install -y python3-pip
+        pip3 install --user scalene numpy
+        wget https://raw.githubusercontent.com/emeryberger/scalene/master/test/testme.py
+        wget https://raw.githubusercontent.com/emeryberger/scalene/master/test/threads-test.py
