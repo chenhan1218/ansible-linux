@@ -1,0 +1,8 @@
+- hosts: all
+  tasks:
+    - name: vscode
+      shell: |
+        sudo sed -i 's/archive.ubuntu.com/free.nchc.org.tw/g' /etc/apt/sources.list
+        sudo apt update
+        sudo apt install virtualenv zsh keychain meld xauth x11-apps dbus-x11 firefox terminator
+        sudo apt install command-not-found docker.io tig silversearcher-ag python3-tk devscripts
